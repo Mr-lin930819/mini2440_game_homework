@@ -218,6 +218,14 @@
             <F N="bmp/game_level_bg.c"/>
             <F N="bmp/game_pass.c"/>
             <F N="bmp/game_scene_ui.c"/>
+            <F N="bmp/t_bmp_1.c"/>
+            <F N="bmp/t_bmp_2.c"/>
+            <F N="bmp/t_bmp_3.c"/>
+            <F N="bmp/t_bmp_4.c"/>
+            <F N="bmp/t_bmp_5.c"/>
+            <F N="bmp/t_bmp_6.c"/>
+            <F N="bmp/t_bmp_7.c"/>
+            <F N="bmp/t_bmp_8.c"/>
         </Folder>
         <Folder Name="sys">
             <F N="sys/.DS_Store"/>
@@ -225,14 +233,10 @@
             <F N="sys/adc.h"/>
             <F N="sys/bg.c"/>
             <F N="sys/clock.c"/>
-            <F N="sys/index.c"/>
             <F N="sys/IRQ.c"/>
             <F N="sys/IRQ.h"/>
             <F N="sys/LCD.c"/>
             <F N="sys/LCD.h"/>
-            <F N="sys/Loffy1.c"/>
-            <F N="sys/Loffy2.c"/>
-            <F N="sys/main_img.c"/>
             <F N="sys/math.h"/>
             <F N="sys/MMU.c"/>
             <F N="sys/MMU.h"/>
@@ -258,7 +262,6 @@
         <F N="gui.c"/>
         <F N="gui.h"/>
         <F N="main.c"/>
-        <F N="main_img.c"/>
         <F N="pinyin.c"/>
         <F N="s3c2440.h"/>
     </Files>

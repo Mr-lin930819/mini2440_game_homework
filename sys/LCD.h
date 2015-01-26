@@ -256,11 +256,20 @@ extern unsigned char __VGA[];
 extern unsigned char ZM_16x16[][32];
 
 // BMP图片
-extern unsigned char indexs[];		// 首页
-extern unsigned char bg[];			// 背景页
-extern unsigned char Loffy1[];		// 显示图片1
-extern unsigned char Loffy2[];		// 显示图片2
-extern unsigned char main_img[];		// 实验图片
+
+extern unsigned char game_scene_ui[];
+extern unsigned char game_level_bg[];		
+extern unsigned char game_pass[];
+
+extern unsigned char t_bmp_1[];
+extern unsigned char t_bmp_2[];			
+extern unsigned char t_bmp_3[];		
+extern unsigned char t_bmp_4[];		
+extern unsigned char t_bmp_5[];		
+extern unsigned char t_bmp_6[];		
+extern unsigned char t_bmp_7[];		
+extern unsigned char t_bmp_8[];		
+
 
 void PutPixel(uint32 x,uint32 y, uint16 c );
 void Lcd_ClearScr(uint32 c);	//LCD清屏或填充指定颜色
