@@ -9,10 +9,10 @@
 int BkGndColor=BLACK;
 int BorderColor=LIGHTGRAY;
 int LineColor=LIGHTBLUE;
-int CellColor=WHITE; 
-int SelColor=BLUE;
-int CurColor=RED;
-int EraColor=CYAN;
+int CellColor=WHITE;
+int SelColor=BLUE;
+int CurColor=RED;
+int DraColor=CYAN;
 //test
 long StartTime;
 long TotalTime;
@@ -141,7 +141,6 @@ int FindPath(BoxIndex *c1,BoxIndex *c2){
             return true;
         }
     }
-    /* ???????????? */
     return false;
 }
 
@@ -242,7 +241,7 @@ BoxIndex *get_clicked_cell(struct *LcdDot TouchXY)
     return  tmp_bi;
 }
 
-unsigned char xyContainRect(struct *LcdDot touchxy,ButtonRect *rect)
+unsigned char xyContainRect(struct LcdDot *touchxy,ButtonRect *rect)
 {
     if (touchxy->x >= rect->left && touchxy->x <= rect->right 
         && touchxy->y >= rect->top && touchxy->y <= rect->bottom) {
