@@ -16,8 +16,8 @@
 #define false 0
 
 typedef struct _gamebox{
-	unsigned char x;
-  unsigned char y;
+	int x;
+        int y;
 	unsigned char type;
 	unsigned char is_empty; //--0:空；--1:有图形
 }GameBox;
@@ -27,6 +27,13 @@ typedef struct _boxindex{
 	int x_i;
 	int y_i;
 }BoxIndex;	//记录一个需要指向的方格的逻辑坐标
+
+typedef struct __buttonbox{
+    int left;
+    int right;
+    int top;
+    int bottom;
+}ButtonRect;
 
 void PlayGame(int game_level);
 

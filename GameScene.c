@@ -20,19 +20,40 @@ int row=0,column=0,PairsCount;//PairsCount,used for re-put and success
 struct Canvas *main_canva;
 BoxIndex cur_bi,sel_bi;
 GameBox **main_array;
+ButtonRect quit_button_rect = {
+    .left = 0,
+    .right = 120,
+    .top = 280,
+    .bottom = 320, 
+}
+ButtonRect restart_button_rect = {
+    .left = 120,
+    .right = 240,
+    .top = 280,
+    .bottom = 320, 
+}
+
 
 /* ****************************/
 Bitmap match_icon(int type)
 {
     switch (type) {
     case 0:
-        return index;
+        return t_bmp_1;
     case 1:
-        return Loffy1;
+        return t_bmp_2;
     case 2:
-        return Loffy2;
+        return t_bmp_3;
     case 3:
-        return main_img;
+        return t_bmp_4;
+    case 4:
+        return t_bmp_5;
+    case 5:
+        return t_bmp_6;
+    case 6:
+        return t_bmp_7;
+    case 7:
+        return t_bmp_8;
     default:
         return NULL;
     }
@@ -220,6 +241,16 @@ BoxIndex *get_clicked_cell(struct *LcdDot TouchXY)
     return  tmp_bi;
 }
 
+unsigned char xyContainRect(struct LcdDot *touchxy,ButtonRect *rect)
+{
+    if (touchxy->x >= rect->left && touchxy->x <= rect->right 
+        && touchxy->y >= rect->top && touchxy->y <= rect->bottom) {
+        return true;
+    }else{
+        return false;
+    }
+}
+
 void game_start(int game_level)
 {
     int key;
@@ -299,9 +330,10 @@ void game_start(int game_level)
 
 void game_finished(int game_level)
 {
+    struct LcdDot mainTouchXY;
     Paint_Bmp(0,0,240,320,bg);
     while (1) {
-        if(GetTouch(&TouchXY)) //get the touch-control
+        if(GetTouch(&mainTouchXY)) //get the touch-control
         {
             Uart_Printf("%d , %d \n",TouchXY.x,TouchXY.y);
             if (/* *click quit* */1) {//return to the main menu
