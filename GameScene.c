@@ -59,7 +59,7 @@ Bitmap match_icon(int type)
     }
 }
 
-void DrawPath(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,uint16 color) { 
+void DrawPath(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,uint16 color){
     GUI_DrawLine(SceneX+CellWidth/2+CellWidth*x1,SceneY+CellHeight/2+CellHeight*y1
                  ,SceneX+CellWidth/2+CellWidth*x2,SceneY+CellHeight/2+CellHeight*y2,color);
     GUI_DrawLine(SceneX+CellWidth/2+CellWidth*x2,SceneY+CellHeight/2+CellHeight*y2
@@ -68,17 +68,17 @@ void DrawPath(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,uint16 col
                  ,SceneX+CellWidth/2+CellWidth*x4,SceneY+CellHeight/2+CellHeight*y4,color);
 }
 
-int FindPath(BoxIndex *c1,BoxIndex *c2) { 
-    int i,j,path,min1,max1,min2,max2,left,right,top,bottom;
+int FindPath(BoxIndex *c1,BoxIndex *c2){
+    int i,j,path,min1,max1,min2,max2,left,right,top,bottom;
     if( main_array[c1->x_i][c1->y_i].type != main_array[c2->x_i][c2->y_i].type)
-        return false; 
+        return false;
     min1=max1=c1->x_i;
     min2=max2=c2->x_i;
     while(min1-1>=0 && main_array[min1-1][c1->y_i].is_empty==0) min1--;
     while(min2-1>=0 && main_array[min2-1][c2->y_i].is_empty==0) min2--;
     left=max(min1,min2);
-    while(max1+1<row && main_array[max1+1][c1->y_i][0]==0) max1++;
-    while(max2+1<row && main_array[max2+1][c2->y_i][0]==0) max2++;
+    while(max1+1<row && main_array[max1+1][c1->y_i][0]==0) max1++;
+    while(max2+1<row && main_array[max2+1][c2->y_i][0]==0) max2++;
     right=min(max1,max2);
     if(left==0){
         DrawPath(c1->x_i,c1->y_i,-1,c1->y_i,-1,c2->y_i,c2->x_i,c2->y_i,LineColor);
@@ -86,21 +86,21 @@ int FindPath(BoxIndex *c1,BoxIndex *c2) { 
         DrawPath(c1->x_i,c1->y_i,-1,c1->y_i,-1,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
         return true;
     }
-    if(right==(row-1)){ 
+    if(right==(row-1)){
         DrawPath(c1->x_i,c1->y_i,row,c1->y_i,row,c2->y_i,c2->x_i,c2->y_i,LineColor);
         delay(6000);
         DrawPath(c1->x_i,c1->y_i,row,c1->y_i,row,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
-        return true;
+        return true;
     }
     for(i=left;i<=right;i++){
         path=0;
         for(j=min(c1->y_i,c2->y_i)+1;j<max(c1->y_i,c2->y_i);j++){
             path+=main_array[i][j].is_empty;
-            if(path>0) break;
-        } 
+            if(path>0) break;
+        }
         if(path==0){
             DrawPath(c1->x_i,c1->y_i,i,c1->y_i,i,c2->y_i,c2->x_i,c2->y_i,LineColor);
-            delay(6000); 
+            delay(6000);
             DrawPath(c1->x_i,c1->y_i,i,c1->y_i,i,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
             return true;
         }
@@ -109,34 +109,34 @@ int FindPath(BoxIndex *c1,BoxIndex *c2) { 
     min2=max2=c2->y_i;
     while(min1-1>=0 && main_array[c1->x_i][min1-1][0]==0) min1--;
     while(min2-1>=0 && main_array[c2->x_i][min2-1][0]==0) min2--;
-    top=max(min1,min2); 
+    top=max(min1,min2);
     while(max1+1<column && main_array[c1->x_i][max1+1][0]==0) max1++;
     while(max2+1<column && main_array[c2->x_i][max2+1][0]==0) max2++;
     bottom=min(max1,max2);
     if(top==0){
         DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,c2->x_i,c2->y_i,LineColor);
         delay(6000);
-        DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,  c2->x_i,c2->y_i,BkGndColor);/*?????*/
+        DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,c2->x_i,c2->y_i,BkGndColor);/*?????*/
         return true;
-    } 
-    if(bottom==(BoardHeight-1)){ 
+    }
+    if(bottom==(BoardHeight-1)){
         DrawPath(c1->x_i,c1->y_i,c1->x_i,column,c2->x_i,column,c2->x_i,c2->y_i,LineColor);
-        delay(6000); 
+        delay(6000);
         DrawPath(c1->x_i,c1->y_i,c1->x_i,column,c2->x_i,column,c2->x_i,c2->y_i,BkGndColor);
         return true;
     }
 
-    for(j=top;j<=bottom;j++){ 
+    for(j=top;j<=bottom;j++){
         path=0;
         for(i=min(c1->x_i,c2->x_i)+1;i<max(c1->x_i,c2->x_i); i++){
             path += main_array[i][j].is_empty;
             if(path>0)break;
-        } 
+        }
         if(path==0){
             /* ????? */
-            DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,  c2->x_i0,c2->y_i,LineColor);
+            DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,LineColor);
             delay(6000);
-            DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,  c2->x_i,c2->y_i,BkGndColor);
+            DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,BkGndColor);
             /*?????*/
             return true;
         }
@@ -145,7 +145,7 @@ int FindPath(BoxIndex *c1,BoxIndex *c2) { 
     return false;
 }
 
-void DrawBorderRect(BoxIndex *c,uint16 color){
+void DrawBorderRect(BoxIndex *c,uint16 color){
     GUI_DrawRect(SceneX+(c->x_i)*CellWidth+1,SceneY+(c->y)*CellHeight+1,SceneX+(c->x_i+1)*CellWidth-2,SceneY+(c->y_i+1)*CellHeight-2);
     GUI_DrawRect(SceneX+(c->x_i)*CellWidth,SceneY+(c->y_i)*CellHeight,SceneX+(c->x_i+1)*CellWidth-1,SceneY+(c->y_i+1)*CellHeight-1);
 }
@@ -163,7 +163,7 @@ void put_img_to_canva(GameBox &gbs)
     }
 }
 
-void EraseCell(int x,int y){
+void EraseCell(int x,int y){
     unsigned char tmp_id[5];
     tmp_id[0] = 'a' + x;
     tmp_id[1] = '1' + y;
@@ -254,11 +254,11 @@ unsigned char xyContainRect(struct *LcdDot touchxy,ButtonRect *rect)
 
 void game_start(int game_level)
 {
-    int key;
+    int key;
     struct LcdDot TouchXY;
     cur_bi.x_i = cur_bi.y_i = 0;
     sel_bi.x_i = sel_bi.y_i = -1;
-    DrawBorderRect(&curCell, CurColor);
+    DrawBorderRect(&curCell, CurColor);
     while(1){
         if(GetTouch(&TouchXY)){ //if clicked (touched)
             sel_bi =  get_clicked_cell(&TouchXY);
@@ -268,19 +268,19 @@ void game_start(int game_level)
             if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==sel_bi.y_i)
                 DrawBorderRect(&cur_bi, SelColor);
              /*????cell?focus?? */
-            else 
+            else
                 DrawBorderRect(&cur_bi, BkGndColor);
              /*?????focus?? */
             /* ????????cell????? */
             if(main_array[cur_bi.x_i][cur_bi.y_i].is_empty==0)
                 continue;
             /* ??????????????? */
-            if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==selCell.y_i)
+            if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==selCell.y_i)
                 continue;
             /*?????????????????????*/
             /*****(  never select before  )**** *
               ****(  set sel_bi as cur_bi )**** */
-            if(sel_bi.x_i<0 || sel_bi.y_i<0){
+            if(sel_bi.x_i<0 || sel_bi.y_i<0){
                 sel_bi.x_i=cur_bi.x_i;
                 sel_bi.y_i=cur_bi.y_i;
                 update(main_canva);
@@ -314,7 +314,7 @@ void game_start(int game_level)
                 /* erase the selCell's focus rect!*/
                 //DrawBorderRect(&selCell,BkGndColor);
                 sel_bi.x_i=sel_bi.y_i=-1;
-            } 
+            }
             //break;
             //case K_ESC: 
                 //DrawGameOver("GAME OVER!"); 
