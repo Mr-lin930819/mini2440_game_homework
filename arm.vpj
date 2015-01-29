@@ -12,7 +12,8 @@
         DebugCallbackName="gdb"
         Version="1"
         OutputFile="%bdarm"
-        CompilerConfigName="Latest Version">
+        CompilerConfigName="Latest Version"
+        Defines="">
         <Menu>
             <Target
                 Name="Compile"
@@ -23,7 +24,7 @@
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='gcc -ansi -c %xup  %defd -g -o "%bd%n%oe" %i "%f"'/>
+                <Exec CmdLine='E:\Qt\Qt5.4.0\Tools\mingw491_32\bin\gcc.exe -c %xup -ansi %defd -g -o "%bd%n%oe" %i %f'/>
             </Target>
             <Target
                 Name="Link"
@@ -34,7 +35,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='gcc -ansi %xup -g -o "%o" %f %libs'/>
+                <Exec CmdLine='gcc %xup -g -o "%o" %objs'/>
             </Target>
             <Target
                 Name="Build"
@@ -100,6 +101,8 @@
                 Name="LinkerOutputType"
                 Value="Executable"/>
         </List>
+        <Includes/>
+        <Libs PreObjects="0"/>
     </Config>
     <Config
         Name="Release"
@@ -107,7 +110,8 @@
         DebugCallbackName="gdb"
         Version="1"
         OutputFile="%bdarm"
-        CompilerConfigName="Latest Version">
+        CompilerConfigName="Latest Version"
+        Defines="">
         <Menu>
             <Target
                 Name="Compile"
@@ -118,7 +122,7 @@
                 OutputExts="*.o"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='gcc -ansi -c %xup %defd -o "%bd%n%oe" %i "%f"'/>
+                <Exec CmdLine='E:\Qt\Qt5.4.0\Tools\mingw491_32\bin\gcc.exe -c %xup -ansi %defd -o "%bd%n%oe" %i %f'/>
             </Target>
             <Target
                 Name="Link"
@@ -129,7 +133,7 @@
                 Deletable="0"
                 SaveOption="SaveCurrent"
                 RunFromDir="%rw">
-                <Exec CmdLine='gcc -ansi %xup -o "%o" %f %libs'/>
+                <Exec CmdLine='gcc %xup -o "%o" %objs'/>
             </Target>
             <Target
                 Name="Build"
@@ -195,14 +199,18 @@
                 Name="LinkerOutputType"
                 Value="Executable"/>
         </List>
+        <Includes/>
+        <Libs PreObjects="0"/>
     </Config>
     <CustomFolders>
         <Folder
             Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go"></Folder>
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go">
+        </Folder>
         <Folder
             Name="Header Files"
-            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"></Folder>
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
+        </Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"/>
@@ -211,7 +219,8 @@
             Filters="*.bmp"/>
         <Folder
             Name="Other Files"
-            Filters=""></Folder>
+            Filters="">
+        </Folder>
     </CustomFolders>
     <Files AutoFolders="DirectoryView">
         <Folder Name="bmp">
@@ -240,7 +249,7 @@
             <F N="sys/math.h"/>
             <F N="sys/MMU.c"/>
             <F N="sys/MMU.h"/>
-            <F N="sys/S3C2440.s"/>
+            <F N="sys/S3C2440.h"/>
             <F N="sys/stdarg.h"/>
             <F N="sys/stdio.h"/>
             <F N="sys/stdlib.h"/>

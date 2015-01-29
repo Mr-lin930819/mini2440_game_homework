@@ -133,7 +133,7 @@ int FindPath(BoxIndex *c1,BoxIndex *c2){
             if(path>0)break;
         }
         if(path==0){
-            /* ????? */
+            /* ????? **/
             DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,LineColor);
             delay(6000);
             DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,BkGndColor);
@@ -261,19 +261,19 @@ void game_start(int game_level)
     while(1){
         if(GetTouch(&TouchXY)){ //if clicked (touched)
             sel_bi =  get_clicked_cell(&TouchXY);
-            /* ?????????? */
+            /* ?????????? **/
             /*???????????cell?*/
 
             if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==sel_bi.y_i)
                 DrawBorderRect(&cur_bi, SelColor);
-             /*????cell?focus?? */
+             /*????cell?focus?? **/
             else
                 DrawBorderRect(&cur_bi, BkGndColor);
-             /*?????focus?? */
-            /* ????????cell????? */
+             /*?????focus?? **/
+            /* ????????cell????? **/
             if(main_array[cur_bi.x_i][cur_bi.y_i].is_empty==0)
                 continue;
-            /* ??????????????? */
+            /* ??????????????? **/
             if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==selCell.y_i)
                 continue;
             /*?????????????????????*/
@@ -293,15 +293,15 @@ void game_start(int game_level)
                 /* ?????cell?*/
                 EraseCell(sel_bi.x_i,sel_bi.y_i);
                 EraseCell(cur_bi.x_i,cur_bi.y_i);
-                /* ?????? */
+                /* ?????? **/
                 main_array[sel_bi.x_i][sel_bi.y_i].is_empty=0;
                 main_array[sel_bi.x_i][sel_bi.y_i].type=0;
                 main_array[cur_bi.x_i][cur_bi.y_i].is_empty=0;
                 main_array[cur_bi.x_i][cur_bi.y_i].type=0;
-                /* ??selCell */
+                /* ??selCell **/
                 //DrawBorderRect(&selCell,BkGndColor);
                 sel_bi.x_i=sel_bi.y_i=-1;
-                /* decrease the pairs count */
+                /* decrease the pairs count **/
                 PairsCount-=2;
                 if(PairsCount==0){
                     //Success
@@ -336,11 +336,13 @@ void game_finished(int game_level)
         if(GetTouch(&mainTouchXY)) //get the touch-control
         {
             Uart_Printf("%d , %d \n",TouchXY.x,TouchXY.y);
-            if (/* *click quit* */1) {//return to the main menu
-                return;
+            //if (/* *click quit* */1) {//return to the main menu
+            if (xyContainRect(&mainTouchXY,quit_button_rect))
+                return; 
             }
-            if (/* *restart* */0) {
-                PlayGame(game_level);
+            //if (/* *restart* */0) {
+        if (xyContainRect(&mainTouchXY,restart_button_rect)){
+            PlayGame(game_level);
                 return;
             }
         }

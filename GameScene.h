@@ -1,9 +1,9 @@
 #ifndef _GAME_SCENE_H_
 #define _GAME_SCENE_H_
 
-#include "sys.h"
-#include "LCD.h"
-#include "adc.h"
+#include "sys/sys.h"
+#include "sys/LCD.h"
+#include "sys/adc.h"
 #include "gui.h"
 #include <string.h>
 #include <stdio.h>

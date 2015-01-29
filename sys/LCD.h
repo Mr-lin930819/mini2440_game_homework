@@ -1,7 +1,7 @@
 #ifndef _LCD_H
 #define _LCD_H
 
-#include <s3c2440.h>
+#include <sys/S3C2440.h>
 #include "sys.h"
 
 
