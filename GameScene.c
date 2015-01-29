@@ -150,7 +150,7 @@ void DrawBorderRect(BoxIndex *c,uint16 color){
     GUI_DrawRect(SceneX+(c->x_i)*CellWidth,SceneY+(c->y_i)*CellHeight,SceneX+(c->x_i+1)*CellWidth-1,SceneY+(c->y_i+1)*CellHeight-1);
 }
 
-void put_img_to_canva(GameBox gbs)
+void put_img_to_canva(GameBox &gbs)
 {
     unsigned char tmp_id[5],i,j;
     tmp_id[2] = '\0';
@@ -242,7 +242,7 @@ BoxIndex *get_clicked_cell(struct *LcdDot TouchXY)
     return  tmp_bi;
 }
 
-unsigned char xyContainRect(struct LcdDot *touchxy,ButtonRect *rect)
+unsigned char xyContainRect(struct *LcdDot touchxy,ButtonRect *rect)
 {
     if (touchxy->x >= rect->left && touchxy->x <= rect->right 
         && touchxy->y >= rect->top && touchxy->y <= rect->bottom) {

@@ -199,12 +199,10 @@
     <CustomFolders>
         <Folder
             Name="Source Files"
-            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go">
-        </Folder>
+            Filters="*.c;*.C;*.cc;*.cpp;*.cp;*.cxx;*.c++;*.prg;*.pas;*.dpr;*.asm;*.s;*.bas;*.java;*.cs;*.sc;*.e;*.cob;*.html;*.rc;*.tcl;*.py;*.pl;*.d;*.m;*.mm;*.go"></Folder>
         <Folder
             Name="Header Files"
-            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if">
-        </Folder>
+            Filters="*.h;*.H;*.hh;*.hpp;*.hxx;*.inc;*.sh;*.cpy;*.if"></Folder>
         <Folder
             Name="Resource Files"
             Filters="*.ico;*.cur;*.dlg"/>
@@ -213,8 +211,7 @@
             Filters="*.bmp"/>
         <Folder
             Name="Other Files"
-            Filters="">
-        </Folder>
+            Filters=""></Folder>
     </CustomFolders>
     <Files AutoFolders="DirectoryView">
         <Folder Name="bmp">
@@ -232,18 +229,18 @@
         </Folder>
         <Folder Name="sys">
             <F N="sys/.DS_Store"/>
-            <F N="sys/IRQ.c"/>
-            <F N="sys/IRQ.h"/>
-            <F N="sys/LCD.c"/>
-            <F N="sys/LCD.h"/>
-            <F N="sys/MMU.c"/>
-            <F N="sys/MMU.h"/>
-            <F N="sys/S3C2440.s"/>
             <F N="sys/adc.c"/>
             <F N="sys/adc.h"/>
             <F N="sys/bg.c"/>
             <F N="sys/clock.c"/>
+            <F N="sys/IRQ.c"/>
+            <F N="sys/IRQ.h"/>
+            <F N="sys/LCD.c"/>
+            <F N="sys/LCD.h"/>
             <F N="sys/math.h"/>
+            <F N="sys/MMU.c"/>
+            <F N="sys/MMU.h"/>
+            <F N="sys/S3C2440.s"/>
             <F N="sys/stdarg.h"/>
             <F N="sys/stdio.h"/>
             <F N="sys/stdlib.h"/>
@@ -254,13 +251,13 @@
             <F N="sys/uart.c"/>
         </Folder>
         <F N=".DS_Store"/>
+        <F N="arm.vpj"/>
+        <F N="arm.vpw"/>
+        <F N="arm.vpwhistu"/>
         <F N="Canvas.c"/>
         <F N="Canvas.h"/>
         <F N="GameScene.c"/>
         <F N="GameScene.h"/>
-        <F N="arm.vpj"/>
-        <F N="arm.vpw"/>
-        <F N="arm.vpwhistu"/>
         <F N="gpio.c"/>
         <F N="gui.c"/>
         <F N="gui.h"/>
