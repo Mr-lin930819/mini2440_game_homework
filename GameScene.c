@@ -1,10 +1,12 @@
 #include "GameScene.h"
+#include <time.h>
+
 #define SceneX 20
-#define SceneY 20
+#define SceneY (20+80)
 #define SceneWidth 200
 #define SceneHeight 160
-#define CellWidth (SceneWidth/row)
-#define CellHeight (SceneHeight/column)
+#define CellWidth (SceneWidth/column-3)
+#define CellHeight (SceneHeight/row-3)
 
 int BkGndColor=BLACK;
 int BorderColor=LIGHTGRAY;
@@ -13,28 +15,24 @@ int CellColor=WHITE;
 int SelColor=BLUE;
 int CurColor=RED;
 int DraColor=CYAN;
-//test
-long StartTime;
-long TotalTime;
-int row=0,column=0,PairsCount;//PairsCount,used for re-put and success
-struct Canvas *main_canva;
-BoxIndex cur_bi,sel_bi;
-GameBox **main_array;
-ButtonRect quit_button_rect = {
-    .left = 0,
-    .right = 120,
-    .top = 280,
-    .bottom = 320, 
-}
-ButtonRect restart_button_rect = {
-    .left = 120,
-    .right = 240,
-    .top = 280,
-    .bottom = 320, 
-}
 
+int TotalTime,EndTime;
+int row=0,column=0,PairsCount,is_win=0,ref_no;//PairsCount,used for re-put and success
+//´¢´æÓÃÓÚÓÎÏ·¿é»æÖÆµÄ»­²¼Êý×é
+Canvas main_canva;
+//ÓÎÏ·¿éÊý¾Ý
+BoxIndex cur_bi,sel_bi,tmp_bi;
 
-/* ****************************/
+ButtonRect quit_button_rect;
+ButtonRect restart_button_rect;
+ButtonRect refresh_button_rect;
+//ÓÎÏ·¿éÊý¾ÝµÄÂß¼­Êý¾Ý
+GameBox main_array[6][5];
+
+/* ****( »ñÈ¡¶ÔÓ¦ÀàÐÍµÄÊµ¼ÊÍ¼±êÊý¾Ý )**** *
+ * ²ÎÊý: @type¡ª¡ªÍ¼±êÀàÐÍ										*
+ * ·µ»ØÖµ: BitmapÀàÐÍ£¬Í¼Æ¬Êý¾ÝÊý×é				*
+ ****************************************** */
 Bitmap match_icon(int type)
 {
     switch (type) {
@@ -59,17 +57,41 @@ Bitmap match_icon(int type)
     }
 }
 
+
+
+/* **************( »æÖÆ¿ÉÒÔÁ¬Í¨µÄÂ·¾¶ )*************** *
+ * ²ÎÊý: @x1¡¢@y1¡¢@x2¡¢@y2¡¢@x3¡¢@y3¡¢@x4¡¢@y4¡ª¡ª¹Õµã×ø±ê 	*
+ * ²ÎÊý: @color¡ª¡ªÂ·¾¶»æÖÆÑÕÉ«														*
+ * ·µ»ØÖµ: ÎÞ																						*
+ ******************************************************** */
 void DrawPath(int x1,int y1,int x2,int y2,int x3,int y3,int x4,int y4,uint16 color){
-    GUI_DrawLine(SceneX+CellWidth/2+CellWidth*x1,SceneY+CellHeight/2+CellHeight*y1
-                 ,SceneX+CellWidth/2+CellWidth*x2,SceneY+CellHeight/2+CellHeight*y2,color);
-    GUI_DrawLine(SceneX+CellWidth/2+CellWidth*x2,SceneY+CellHeight/2+CellHeight*y2
-                 ,SceneX+CellWidth/2+CellWidth*x3,SceneY+CellHeight/2+CellHeight*y3,color);
-    GUI_DrawLine(SceneX+CellWidth/2+CellWidth*x3,SceneY+CellHeight/2+CellHeight*y3
-                 ,SceneX+CellWidth/2+CellWidth*x4,SceneY+CellHeight/2+CellHeight*y4,color);
+		
+		int px1,px2,px3,px4,py1,py2,py3,py4;
+		px1 = SceneX+(CellWidth+3)/2+(CellWidth+3)*x1;
+		px2 = SceneX+(CellWidth+3)/2+(CellWidth+3)*x2;
+		px3 = SceneX+(CellWidth+3)/2+(CellWidth+3)*x3;
+		px4 = SceneX+(CellWidth+3)/2+(CellWidth+3)*x4;
+		py1 = SceneY+(CellHeight+3)/2+(CellHeight+3)*y1;
+		py2 = SceneY+(CellHeight+3)/2+(CellHeight+3)*y2;
+		py3 = SceneY+(CellHeight+3)/2+(CellHeight+3)*y3;
+		py4 = SceneY+(CellHeight+3)/2+(CellHeight+3)*y4;
+		Uart_Printf("%d||%d||%d||%d",px1,py1,px2,py2);
+		if(px2 <= 0)px2 = px3 = 5;
+		if(px2 >= 240)px2 = px3 = 235;
+		GUI_DrawLine(px1,py1,px2,py2,color);
+		GUI_DrawLine(px2,py2,px3,py3,color);
+		GUI_DrawLine(px3,py3,px4,py4,color);
 }
 
+
+
+/* *****( Ñ°ÕÒÁ¬Í¨Â·¾¶µÄºËÐÄËã·¨ )***** *
+ * ²ÎÊý: @c1¡¢@c2¡ª¡ªÐèÒªÑ°ÕÒÂ·¾¶µÄÁ½¸ö¿é	*
+ * ·µ»ØÖµ: intÀàÐÍ£¬ÕÒµ½·µ»Ø1£¬·ñÔò·µ»Ø0	*
+ ****************************************** */
 int FindPath(BoxIndex *c1,BoxIndex *c2){
     int i,j,path,min1,max1,min2,max2,left,right,top,bottom;
+	//Uart_Printf("c1's type is %d::::c2's type is %d\n",main_array[c1->x_i][c1->y_i].type,main_array[c2->x_i][c2->y_i].type);
     if( main_array[c1->x_i][c1->y_i].type != main_array[c2->x_i][c2->y_i].type)
         return false;
     min1=max1=c1->x_i;
@@ -77,19 +99,21 @@ int FindPath(BoxIndex *c1,BoxIndex *c2){
     while(min1-1>=0 && main_array[min1-1][c1->y_i].is_empty==0) min1--;
     while(min2-1>=0 && main_array[min2-1][c2->y_i].is_empty==0) min2--;
     left=max(min1,min2);
-    while(max1+1<row && main_array[max1+1][c1->y_i][0]==0) max1++;
-    while(max2+1<row && main_array[max2+1][c2->y_i][0]==0) max2++;
+    while(max1+1<column && main_array[max1+1][c1->y_i].is_empty==0) max1++;
+    while(max2+1<column && main_array[max2+1][c2->y_i].is_empty==0) max2++;
     right=min(max1,max2);
     if(left==0){
         DrawPath(c1->x_i,c1->y_i,-1,c1->y_i,-1,c2->y_i,c2->x_i,c2->y_i,LineColor);
-        delay(6000);
-        DrawPath(c1->x_i,c1->y_i,-1,c1->y_i,-1,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
+        delay(2000);
+        //DrawPath(c1->x_i,c1->y_i,-1,c1->y_i,-1,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
         return true;
     }
-    if(right==(row-1)){
-        DrawPath(c1->x_i,c1->y_i,row,c1->y_i,row,c2->y_i,c2->x_i,c2->y_i,LineColor);
-        delay(6000);
-        DrawPath(c1->x_i,c1->y_i,row,c1->y_i,row,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
+    if(right==(column-1)){
+//				Uart_Printf("RIGHT~~!");
+        DrawPath(c1->x_i,c1->y_i,column,c1->y_i,column,c2->y_i,c2->x_i,c2->y_i,LineColor);
+        delay(2000);
+			//Uart_Printf("RIGHT!!");
+        //DrawPath(c1->x_i,c1->y_i,column,c1->y_i,column,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
         return true;
     }
     for(i=left;i<=right;i++){
@@ -100,29 +124,29 @@ int FindPath(BoxIndex *c1,BoxIndex *c2){
         }
         if(path==0){
             DrawPath(c1->x_i,c1->y_i,i,c1->y_i,i,c2->y_i,c2->x_i,c2->y_i,LineColor);
-            delay(6000);
-            DrawPath(c1->x_i,c1->y_i,i,c1->y_i,i,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
+            delay(2000);
+            //DrawPath(c1->x_i,c1->y_i,i,c1->y_i,i,c2->y_i,c2->x_i,c2->y_i,BkGndColor);
             return true;
         }
     }
     min1=max1=c1->y_i;
     min2=max2=c2->y_i;
-    while(min1-1>=0 && main_array[c1->x_i][min1-1][0]==0) min1--;
-    while(min2-1>=0 && main_array[c2->x_i][min2-1][0]==0) min2--;
+    while(min1-1>=0 && main_array[c1->x_i][min1-1].is_empty==0) min1--;
+    while(min2-1>=0 && main_array[c2->x_i][min2-1].is_empty==0) min2--;
     top=max(min1,min2);
-    while(max1+1<column && main_array[c1->x_i][max1+1][0]==0) max1++;
-    while(max2+1<column && main_array[c2->x_i][max2+1][0]==0) max2++;
+    while(max1+1<row && main_array[c1->x_i][max1+1].is_empty==0) max1++;
+    while(max2+1<row && main_array[c2->x_i][max2+1].is_empty==0) max2++;
     bottom=min(max1,max2);
     if(top==0){
         DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,c2->x_i,c2->y_i,LineColor);
-        delay(6000);
-        DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,c2->x_i,c2->y_i,BkGndColor);/*?????*/
-        return true;
+        delay(2000);
+        //DrawPath(c1->x_i,c1->y_i,c1->x_i,-1,c2->x_i,-1,c2->x_i,c2->y_i,BkGndColor);
+				return true;
     }
-    if(bottom==(BoardHeight-1)){
-        DrawPath(c1->x_i,c1->y_i,c1->x_i,column,c2->x_i,column,c2->x_i,c2->y_i,LineColor);
-        delay(6000);
-        DrawPath(c1->x_i,c1->y_i,c1->x_i,column,c2->x_i,column,c2->x_i,c2->y_i,BkGndColor);
+    if(bottom==(row-1)){
+        DrawPath(c1->x_i,c1->y_i,c1->x_i,row,c2->x_i,row,c2->x_i,c2->y_i,LineColor);
+        delay(2000);
+        //DrawPath(c1->x_i,c1->y_i,c1->x_i,row,c2->x_i,row,c2->x_i,c2->y_i,BkGndColor);
         return true;
     }
 
@@ -133,116 +157,177 @@ int FindPath(BoxIndex *c1,BoxIndex *c2){
             if(path>0)break;
         }
         if(path==0){
-            /* ????? **/
             DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,LineColor);
-            delay(6000);
-            DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,BkGndColor);
-            /*?????*/
+            delay(2000);
+            //DrawPath(c1->x_i,c1->y_i,c1->x_i,j,c2->x_i,j,c2->x_i,c2->y_i,BkGndColor);
             return true;
         }
     }
     return false;
 }
 
+
+
+/* -----------( »æÖÆÑ¡ÖÐ¿éµÄÌáÊ¾±ß¿ò )---------- *
+ * ²ÎÊý: @c¡ª¡ªÐèÒª»æÖÆ±ß¿òµÄ¿é£¬@color¡ª¡ª±ß¿òÉ«²Ê *
+ * ·µ»ØÖµ£º ÎÞ																			*
+ * ------------------------------------------------ */
 void DrawBorderRect(BoxIndex *c,uint16 color){
-    GUI_DrawRect(SceneX+(c->x_i)*CellWidth+1,SceneY+(c->y)*CellHeight+1,SceneX+(c->x_i+1)*CellWidth-2,SceneY+(c->y_i+1)*CellHeight-2);
-    GUI_DrawRect(SceneX+(c->x_i)*CellWidth,SceneY+(c->y_i)*CellHeight,SceneX+(c->x_i+1)*CellWidth-1,SceneY+(c->y_i+1)*CellHeight-1);
+    GUI_DrawRect(SceneX+(c->x_i)*(CellWidth+3)+1,SceneY+(c->y_i)*(CellHeight+3)+1,SceneX+(c->x_i+1)*(CellWidth+3)-2,SceneY+(c->y_i+1)*(CellHeight+3)-2,color);
+    GUI_DrawRect(SceneX+(c->x_i)*(CellWidth+3),SceneY+(c->y_i)*(CellHeight+3),SceneX+(c->x_i+1)*(CellWidth+3)-1,SceneY+(c->y_i+1)*(CellHeight+3)-1,color);
 }
 
-void put_img_to_canva(GameBox &gbs)
+
+/* ---( ½«ÓÐÊý¾ÝµÄ¿éÖÐ¶ÔÓ¦Í¼±ê·ÅÈë»æÖÆ»­²¼Êý×éÖÐ )-- *
+ * ²ÎÊý£º@gbs ¡ª¡ª ¿éÐÅÏ¢Êý¾Ý															*
+ * ·µ»ØÖµ£ºÎÞ
+ * ------------------------------------------------------ */
+void put_img_to_canva(GameBox gbs[6][5])
 {
-    unsigned char tmp_id[5],i,j;
+    char tmp_id[5],i,j;
     tmp_id[2] = '\0';
-    for (i = 0;i<row;i++) {
-        for (j = 0;j<column;j++) {
+    for (i = 0;i<column;i++) {
+        for (j = 0;j<row;j++) {
             tmp_id[0] = 'a' + i;
             tmp_id[1] = '1' + j;
-            addBitmap(main_canva,match_icon(gbs.type),gbs.x,gbs.y,CellWidth,CellHeight,tmp_id,1);
+					  if(gbs[i][j].is_empty)
+							addBitmap(main_canva,match_icon(gbs[i][j].type),gbs[i][j].x,gbs[i][j].y,CellWidth,CellHeight,tmp_id,1);
+						Uart_Printf("Bitmap(%s)added!\n",tmp_id);
         }
     }
 }
 
+
+
+/* ---( ´Ó»æÖÆÊý×éÖÐÉ¾³ýÂß¼­Î»ÖÃ¿é¶ÔÓ¦µÄÍ¼Æ¬Êý¾Ý )--- *
+ * ²ÎÊý£º@x¡¢@y ¡ª¡ª ÐèÒªÉ¾³ýµÄ¿éµÄÂß¼­Î»ÖÃ								*
+ * ·µ»ØÖµ£ºÎÞ
+ * -------------------------------------------------------*/
 void EraseCell(int x,int y){
-    unsigned char tmp_id[5];
+    char tmp_id[5];
     tmp_id[0] = 'a' + x;
     tmp_id[1] = '1' + y;
     tmp_id[2] = '\0';
     deleteBitmapById(main_canva,tmp_id);
-    update(main_canva);
+	Uart_Printf("cell : %d , %d has been erased!",x,y);
+    //update(main_canva);
 }
 
-GameBox **createArray(int w,int h,int count)
-{
-    int i,m,rand_x,rand_y;
-    unsigned char tmp_id,tmp_img;
-    GameBox **ret_gb = (GameBox **)malloc(sizeof(GameBox *) * w);
-    for (i = 0;i<w,i++) {
-        ret_gb[i] = (GameBox *)malloc(sizeof(GameBox) * h);
-        memset(ret_gb[i],0,sizeof(GameBox) * h);
-        for (m = 0;m<h;m++) {
-            ret_gb[i][m].is_empty = 0;
-            ret_gb[i][m].type = 0;
-        }
-    }
 
-    srand((unsigned)time(NULL));
-    rand_x = rand()%w;
-    rand_y = rand()%h;
+
+/* ---------( Éú³ÉÐÂµÄËæ»úÅÅÁÐ¿éÊý¾Ý )-------	*
+ * ²ÎÊý£º@w¡¢@h ¡ª¡ª µ±Ç°ÄÑ¶È¼¶±ðµÄºá×ÝÏò¿éÊýÁ¿		*
+ * ²ÎÊý£º@count ¡ª¡ª µ±Ç°ÐèÒªÅÅÁÐµÄ¿é×ÜÊýÁ¿			*
+ * ---------------------------------------------- */
+void createArray(int w,int h,int count)
+{
+    int i,m,rand_x=0,rand_y=0,m_e;
+//    char tmp_id,tmp_img;
+		
+
+		for (i = 0;i<6;i++) {
+			for (m = 0;m<5;m++) {
+					main_array[i][m].x = 0;
+					main_array[i][m].y = 0;
+					main_array[i][m].is_empty = 0;
+					main_array[i][m].type = 0;
+			}
+		}
+    //srand((unsigned)time(NULL));
+    //rand_x = rand()%w;
+    //rand_y = rand()%h;
+		//Uart_Printf("Rand_x: %d , Rand_y: %d ..\n",rand_x,rand_y);
+				
     for (m = 0;m<count/2;m++) {
-        while (ret_gb[rand_x][rand_y].is_empty == 1 ) {
+				
+        while (main_array[rand_x][rand_y].is_empty == 1 ) {
             //srand((unsigned)time(NULL));
             rand_x = rand()%w;
             rand_y = rand()%h;
         }
-        ret_gb[rand_x][rand_y].is_empty = 1;
-        ret_gb[rand_x][rand_y].type = m;
-        ret_gb[rand_x][rand_y].x = SceneX + rand_x*CellWidth;
-        ret_gb[rand_x][rand_y].y = SceneY + rand_y*CellHeight;
+				Uart_Printf("Rand_x: %d , Rand_y: %d ..\n",rand_x,rand_y);
+        main_array[rand_x][rand_y].is_empty = 1;
+				if(m>=8){
+					m_e = rand()%8;
+					main_array[rand_x][rand_y].type = m_e;
+				}else				
+					main_array[rand_x][rand_y].type = m;
+        main_array[rand_x][rand_y].x = SceneX + rand_x*(CellWidth+3);
+        main_array[rand_x][rand_y].y = SceneY + rand_y*(CellHeight+3);
 
-        /******(  make twice  )*******/
-        while (ret_gb[rand_x][rand_y].is_empty == 1 ) {
-            //srand((unsigned)time(NULL));
+        /******(  Éú³É³É¶ÔµÄ¿é  )*******/
+				while (main_array[rand_x][rand_y].is_empty == 1 ) {
             rand_x = rand()%w;
             rand_y = rand()%h;
         }
-        ret_gb[rand_x][rand_y].is_empty = 1;
-        ret_gb[rand_x][rand_y].type = m;
-        ret_gb[rand_x][rand_y].x = SceneX + rand_x*CellWidth;
-        ret_gb[rand_x][rand_y].y = SceneY + rand_y*CellHeight;
+				Uart_Printf("Rand_x: %d , Rand_y: %d ..\n",rand_x,rand_y);
+        main_array[rand_x][rand_y].is_empty = 1;
+        if(m>=8)
+					main_array[rand_x][rand_y].type = m_e;
+				else				
+					main_array[rand_x][rand_y].type = m;
+        main_array[rand_x][rand_y].x = SceneX + rand_x*(CellWidth+3);
+        main_array[rand_x][rand_y].y = SceneY + rand_y*(CellHeight+3);
     }
-    return ret_gb;
-
+    //return ret_gb;
 }
 
-void game_init(int game_level)
+
+
+/* ***(ÓÃÓÚÏ´ÅÆµÄº¯Êý	)****	*
+ * ²ÎÊý: @level¡ª¡ª¹Ø¿¨¼¶±ð 		*
+ * ·µ»ØÖµ: ÎÞ								*
+ * ************************** */
+void refresh_boxes(int level)
 {
-    switch (game_level) {
-    case 1:
-        row = 2;column = 3;PairsCount = 6;
-        main_array = createArray(2,3,PairsCount);break;
-    case 2:
-        row = 3;column = 4;PairsCount = 12;
-        main_array = createArray(3,4,PairsCount);break;
-    case 3:
-        row = 4;column = 5;PairsCount = 20;
-        main_array = createArray(4,5,PairsCount);break;
-    case 4:
-        row = 5;column = 6;PairsCount = 30;
-        main_array = createArray(5,6,PairsCount);break;
-    }
+	//if(ref_no == 0)
+	//	return;
+	switch(level)
+	{
+		case 1:
+			createArray(3,2,PairsCount);break;
+		case 2:
+			createArray(4,3,PairsCount);break;
+		case 3:
+			createArray(5,4,PairsCount);break;
+		case 4:
+			createArray(6,5,PairsCount);break;
+		default:
+			break;
+	}
+	ref_no --;
+	Paint_Bmp(0,0,240,320,game_scene_ui);
+	put_img_to_canva(main_array);
+	update(main_canva);
 }
 
-BoxIndex *get_clicked_cell(struct *LcdDot TouchXY)
+
+
+
+
+/* *************( get_clicked_cell	)********** *
+ * ²ÎÊý: @TouchXY ¡ª¡ª µã»÷µãµÄÐÅÏ¢					 		*
+ * ·µ»ØÖµ: ÎÞ																	*
+ * ¹¦ÄÜ£º »ñÈ¡µã»÷µÄ¿é£¬½«ÆäÐÅÏ¢´æÈëtmp_bi		*
+ * ******************************************** */
+void get_clicked_cell(struct LcdDot* TouchXY)
 {
-    BoxIndex *tmp_bi = (BoxIndex *)malloc(sizeof(BoxIndex));
-    memset(tmp_bi,0,sizeof(BoxIndex));
-    tmp_bi->x_i = (TouchXY.x - SceneX) / CellWidth;
-    tmp_bi->y_i = (TouchXY.y - SceneY) / CellHeight;
-    return  tmp_bi;
+	tmp_bi.x_i = (TouchXY->x - SceneX) / (CellWidth+3);
+	tmp_bi.y_i = (TouchXY->y - SceneY) / (CellHeight+3);
 }
 
+
+
+/* *************( xyContainRect	)**************** *
+ * ²ÎÊý: @TouchXY ¡ª¡ª µã»÷µãµÄÐÅÏ¢							  *
+ * 				@rect ¡ª¡ª ÐèÒªÅÐ¶ÏµÄ°´¼üµÄÐÅÏ¢  		  *
+ * ·µ»ØÖµ: ucharÀàÐÍ£¬µã»÷ÖÐÔò·µ»Ø1£¬·ñÔò·µ»Ø0 *																	*
+ * ¹¦ÄÜ£º ÅÐ¶Ïµã»÷µÄµãÊÇ·ñÎ»ÓÚÖ¸¶¨°´¼üÇøÓò		*
+ * ********************************************** */
 unsigned char xyContainRect(struct LcdDot *touchxy,ButtonRect *rect)
 {
+		Uart_Printf("====(t_pos:%d,%d)===||===(b_rect:%d,%d,%d,%d)===\n",touchxy->x,touchxy->y,
+									rect->left,rect->right,rect->top,rect->bottom);
     if (touchxy->x >= rect->left && touchxy->x <= rect->right 
         && touchxy->y >= rect->top && touchxy->y <= rect->bottom) {
         return true;
@@ -251,106 +336,255 @@ unsigned char xyContainRect(struct LcdDot *touchxy,ButtonRect *rect)
     }
 }
 
+
+
+
+/*ÖÐ¶Ï·þÎñ³ÌÐò ÓÃÓÚ¼ÆÊ±¼ÆËãÓÎÏ·Ê±¼ä*/
+void HandlerIRQ(void)
+{
+	switch(INTOFFSET)
+	{
+		case 10://¶¨Ê±Æ÷0ÖÐ¶Ï
+			EndTime++;
+  	default:
+			break;
+	}
+	ClearPending(1<<INTOFFSET); 		//ÇåÖÐ¶Ï¹ÒÆð¼Ä´æÆ÷°üÀ¨SRCPND INTPND
+}
+
+
+/* *************( game_init	)******************** *
+ * ²ÎÊý: @game_level ¡ª¡ª ÓÎÏ·ÄÑ¶È							  	*
+ * ·µ»ØÖµ: ÎÞ  																	*
+ * ¹¦ÄÜ£º ³õÊ¼»¯ÓÎÏ·Êý¾Ý£¬ÀýÈçÊ±¼ä¡¢¿éÅÅÁÐµÈµÈ*
+ * ********************************************** */
+void game_init(int game_level)
+{
+		
+		quit_button_rect.left = 120;
+    quit_button_rect.right = 240;
+    quit_button_rect.top = 280;
+    quit_button_rect.bottom = 320;
+	
+		restart_button_rect.left = 0;
+    restart_button_rect.right = 120;
+    restart_button_rect.top = 280;
+    restart_button_rect.bottom = 320;
+
+		refresh_button_rect.left = 175;
+    refresh_button_rect.right = 224;
+    refresh_button_rect.top = 50;
+    refresh_button_rect.bottom = 80;
+
+		is_win = 0;
+		ref_no = 3;
+		TotalTime = 0;
+		EndTime = 0;
+		Paint_Bmp(0,0,240,320,game_scene_ui);
+	  //Uart_Printf("Game Ready To Initialize...\n");
+    switch (game_level) {
+    case 1:
+        row = 2;column = 3;PairsCount = 6;
+        //main_array = createArray(2,3,PairsCount);
+				createArray(3,2,PairsCount);break;
+    case 2:
+        row = 3;column = 4;PairsCount = 12;
+        //main_array = createArray(3,4,PairsCount);
+				createArray(4,3,PairsCount);break;
+    case 3:
+        row = 4;column = 5;PairsCount = 20;
+        //main_array = createArray(4,5,PairsCount);
+				createArray(5,4,PairsCount);break;
+    case 4:
+        row = 5;column = 6;PairsCount = 30;
+        //main_array = createArray(5,6,PairsCount);
+				createArray(6,5,PairsCount);break;
+    } 
+		//time(&StartTime);
+		Timer0Init();
+		//Uart_Printf("Game Initialized...\n");
+}
+
+
+/* *************( game_start )******************** *
+ * ²ÎÊý: @game_level ¡ª¡ª ÓÎÏ·ÄÑ¶È							  	 *
+ * ·µ»ØÖµ: ÎÞ  																	 *
+ * ¹¦ÄÜ£º ÓÎÏ·ÔËÐÐÖ÷Ñ­»·£¬ÆäÖÐÐèÒªÅÐ¶Ïµã»÷ÊÂ	 *
+ * 				¼þÒÔ¼°ÓÎÏ·Âß¼­µÄÔËËãµÈµÈÐÐÎª¡£				 *
+ * *********************************************** */
 void game_start(int game_level)
 {
-    int key;
+//    int key;
     struct LcdDot TouchXY;
-    cur_bi.x_i = cur_bi.y_i = 0;
+		//BoxIndex* tmp_bi; 
+  
+		cur_bi.x_i = cur_bi.y_i = -1;
     sel_bi.x_i = sel_bi.y_i = -1;
-    DrawBorderRect(&curCell, CurColor);
+		
+    //DrawBorderRect(&cur_bi, CurColor);
+		put_img_to_canva(main_array);
+		//Paint_Bmp(0,0,240,320,game_scene_ui);
+		update(main_canva);
     while(1){
+				Lcd_printf(0,50,RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),1,"ÒÑÓÃÊ±¼ä£º %d Ãë",EndTime);
+				if(ref_no > 0){
+					Paint_Bmp(175,50,49,30,xp_1);
+				}else{
+					Paint_Bmp(175,50,49,30,xp_2);
+				}
         if(GetTouch(&TouchXY)){ //if clicked (touched)
-            sel_bi =  get_clicked_cell(&TouchXY);
-            /* ?????????? **/
-            /*???????????cell?*/
-
-            if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==sel_bi.y_i)
-                DrawBorderRect(&cur_bi, SelColor);
-             /*????cell?focus?? **/
-            else
-                DrawBorderRect(&cur_bi, BkGndColor);
-             /*?????focus?? **/
-            /* ????????cell????? **/
+            //tmp_bi = get_clicked_cell(&TouchXY);
+					
+						if (xyContainRect(&TouchXY,&quit_button_rect)){
+								cleanCanvas(main_canva);
+                return; 
+						}
+            //if (/* *restart* */0) {
+						else if (xyContainRect(&TouchXY,&restart_button_rect)){
+							cleanCanvas(main_canva);
+							//refresh_boxes(game_level);
+							PlayGame(game_level);  
+							return;
+						}
+						else if(xyContainRect(&TouchXY,&refresh_button_rect)){
+							if(ref_no > 0){
+								cleanCanvas(main_canva);
+								refresh_boxes(game_level);
+								continue;
+							}
+						}
+						
+						get_clicked_cell(&TouchXY);	
+						cur_bi.x_i = tmp_bi.x_i;
+						cur_bi.y_i = tmp_bi.y_i;
+            
+						
             if(main_array[cur_bi.x_i][cur_bi.y_i].is_empty==0)
                 continue;
-            /* ??????????????? **/
-            if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==selCell.y_i)
+
+            if(cur_bi.x_i==sel_bi.x_i && cur_bi.y_i==sel_bi.y_i)
                 continue;
-            /*?????????????????????*/
-            /*****(  never select before  )**** *
+
+						/*****(  never select before  )**** *
               ****(  set sel_bi as cur_bi )**** */
             if(sel_bi.x_i<0 || sel_bi.y_i<0){
                 sel_bi.x_i=cur_bi.x_i;
                 sel_bi.y_i=cur_bi.y_i;
-                update(main_canva);
+								//Paint_Bmp(0,0,240,320,game_scene_ui);
+                //update(main_canva);
                 DrawBorderRect(&sel_bi,SelColor);
                 continue;
             }
             /* ****( then if have selected, try to   )******
                ****( judge whether it can be removed )****** */
-            /*???????????????????*/
-            if(FindPath(&sel_bi,&sel_bi)){
-                /* ?????cell?*/
+            
+            if(FindPath(&cur_bi,&sel_bi)){
                 EraseCell(sel_bi.x_i,sel_bi.y_i);
                 EraseCell(cur_bi.x_i,cur_bi.y_i);
-                /* ?????? **/
                 main_array[sel_bi.x_i][sel_bi.y_i].is_empty=0;
                 main_array[sel_bi.x_i][sel_bi.y_i].type=0;
                 main_array[cur_bi.x_i][cur_bi.y_i].is_empty=0;
                 main_array[cur_bi.x_i][cur_bi.y_i].type=0;
-                /* ??selCell **/
                 //DrawBorderRect(&selCell,BkGndColor);
                 sel_bi.x_i=sel_bi.y_i=-1;
-                /* decrease the pairs count **/
-                PairsCount-=2;
+
+								PairsCount-=2;
                 if(PairsCount==0){
                     //Success
                     //DrawGameOver("CONGRATULATIONS!");
+										is_win = 1;
+										TotalTime = EndTime;
+										cleanCanvas(main_canva);
                     return;
                 }
             }else{
-                /* ???????cell?*/
-                /* erase the selCell's focus rect!*/
+                
                 //DrawBorderRect(&selCell,BkGndColor);
                 sel_bi.x_i=sel_bi.y_i=-1;
             }
-            //break;
-            //case K_ESC: 
-                //DrawGameOver("GAME OVER!"); 
-                //break;
-            //default:
-            //break;
-            //} 
-            /*????focus??*/
+            Paint_Bmp(0,0,240,320,game_scene_ui);
             update(main_canva);
-            DrawBorderRect(&cur_bi,CurColor);//draw pre-selected cell
+						//EndTime =time(NULL);
+						//¼ÆËãÒÑÓÃÊ±¼ä
+						//Lcd_printf(0,50,RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),0,"ÒÑÓÃÊ±¼ä£º %d Ãë",difftime(EndTime,StartTime));
+            //DrawBorderRect(&cur_bi,CurColor);//draw pre-selected cell
+						
+						
         }
     }
 }
 
+
+/* *************( game_finished )***************** *
+ * ²ÎÊý: @game_level ¡ª¡ª ÓÎÏ·ÄÑ¶È							  	 *
+ * ·µ»ØÖµ: ÎÞ  																	 *
+ * ¹¦ÄÜ£º ÓÎÏ·½áÊøºóÏÔÊ¾µÄ½çÃæ£¬ÆäÖÐÐèÒªÏÔÊ¾	 *
+ * 				ÓÎÏ·×îÖÕ³É¼¨£¬ÒÔ¼°µÈ´ýÓÃ»§Ñ¡ÔñÒÔ¾ö¶¨ *
+ *				ÐèÒªÍË»Ø²Ëµ¥»¹ÊÇÖØÐÂ¿ªÊ¼¡£						 *
+ * *********************************************** */
 void game_finished(int game_level)
 {
     struct LcdDot mainTouchXY;
-    Paint_Bmp(0,0,240,320,bg);
+		if(!is_win)
+			return;
+    Paint_Bmp(0,0,240,320,game_scene_ui);
+		Paint_Bmp(0,80,240,200,game_pass);
+		Lcd_printf(50,50,RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),0,"×îÖÕ³É¼¨Îª£º %d Ãë",TotalTime);
+		
     while (1) {
         if(GetTouch(&mainTouchXY)) //get the touch-control
         {
-            Uart_Printf("%d , %d \n",TouchXY.x,TouchXY.y);
+            Uart_Printf("%d , %d \n",mainTouchXY.x,mainTouchXY.y);
             //if (/* *click quit* */1) {//return to the main menu
-            if (xyContainRect(&mainTouchXY,quit_button_rect))
+            if (xyContainRect(&mainTouchXY,&quit_button_rect))
                 return; 
-            }
             //if (/* *restart* */0) {
-        if (xyContainRect(&mainTouchXY,restart_button_rect)){
-            PlayGame(game_level);
-                return;
-            }
-        }
+						if (xyContainRect(&mainTouchXY,&restart_button_rect)){
+								//PlayGame(game_level);
+							PlayGame(game_level);  
+							return;
+						}
+			}
     }
 }
 
+
+
+/* ****************( PlayGame )******************* *
+ * ²ÎÊý: @game_level ¡ª¡ª ÓÎÏ·ÄÑ¶È							  	 *
+ * ·µ»ØÖµ: ÎÞ  																	 *
+ * ¹¦ÄÜ£º ÓÎÏ·µÄÖ÷Èë¿Úº¯Êý£¬´Ó´Ë´¦¿ªÊ¼Ö´ÐÐÓÎÏ· *
+ * 				³õÊ¼»¯¡¢ÔËÐÐÂß¼­¡¢ÊÕÎ²µÈÒ»ÏµÁÐº¯Êý¡£ *
+ * *********************************************** */
 void PlayGame(int game_level)
 {
+	//Led_Test();
+	/*uint8 i;
+	GPB_Conf();						// GPIO³õÊ¼»¯
+	
+	Paint_Bmp(0, 0, 240, 320, bg);	// Ò³ÃæÇÐ»»
+	Lcd_printf(30, 100, RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),0,"ÕýÔÚ½øÐÐÁ÷Ë®µÆÏÔÊ¾");
+	
+	for(i=0; i<10; i++)
+	{
+		Lcd_printf(30, 125, RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),1,"Ñ­»·ÏÔÊ¾10´Î£¬µ±Ç°µÚ%d´Î", i+1);				
+		if (i == 3)
+			Lcd_printf(30, 200, RGB(0xff,0x00,0x00),RGB(0xff,0xff,0xff),1,"¼´½«ÍË³ö...", i);	
+		
+		Led_Out(0x01);				// LED1µãÁÁ
+		delay(3000);
+		Led_Out(0x02);				// LED2µãÁÁ
+		delay(3000);
+		Led_Out(0x04);				// LED3µãÁÁ
+		delay(3000);
+		Led_Out(0x08);				// LED4µãÁÁ
+		delay(3000); 
+		Led_Out(0x0F);				// LEDÈ«ÁÁ
+		delay(3000);
+		Led_Out(0x00);				// LEDÈ«Ãð
+		delay(3000);
+	}*/
+	
     game_init(game_level);
     game_start(game_level);
     game_finished(game_level);

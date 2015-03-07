@@ -1,15 +1,13 @@
 #ifndef _GAME_SCENE_H_
 #define _GAME_SCENE_H_
 
-#include "sys/sys.h"
-#include "sys/LCD.h"
-#include "sys/adc.h"
+#include "sys.h"
+#include "LCD.h"
+#include "adc.h"
 #include "gui.h"
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <S3C2440.H>
-#include <time.h>
+#include <s3c2440.h>
 #include <Canvas.h>
 
 #define true 1
@@ -35,6 +33,17 @@ typedef struct __buttonbox{
     int bottom;
 }ButtonRect;
 
-void PlayGame(int game_level);
+int max(int a,int b)
+{
+	return a>b?a:b;
+}
+
+int min(int a,int b)
+{
+	return a<b?a:b;
+}
+
+//void PlayGame(void);
+//void PlayGame(int game_level);
 
 #endif

@@ -5,6 +5,8 @@
 	*　返回初始化完毕的新画布
 	*　返回类型struct Canvas*
 **/
+
+/*
 struct Canvas* createEmptyCanvas()
 {
 	struct Canvas* newCanvas = (struct Canvas*)malloc( sizeof(struct Canvas) );
@@ -18,84 +20,95 @@ struct Canvas* createEmptyCanvas()
 	newCanvas->max_layer = 0;
 	return newCanvas;
 }
+*/
 
-/**
-  *　加入一张需要显示的图形
-  *　
-  *
-**/
-void addBitmap(struct Canvas *canvas,Bitmap bmp,uint16 x,uint16 y,uint16 width,uint16 height,char id[],int layer)
+/***********( addBitmap )************ *
+ * 参数：@canvas —— 画布					    *
+ *			@x、@y、@width、@height —— 加  *
+ *			入的图片位置大小信息			  *
+ *			@id —— 图片的标识字符串		  *
+ *			@layer —— 图片的层					  *
+ * 返回值：无										  	  *
+ * 功能：将需要显示的图片加入到画 *
+ *			布中。											  *
+ ************************************ */
+void addBitmap(Canvas canvas,Bitmap bmp,uint16 x,uint16 y,uint16 width,uint16 height,char id[],int layer)
 {
-	struct BitmapsNode *new_bmp = (struct BitmapsNode *)malloc(sizeof(struct BitmapsNode));
-	strcpy(new_bmp->id,id);
-	new_bmp->bmp_data = bmp;
-	new_bmp->layer = layer;
-	new_bmp->x = x;new_bmp->y = y;
-    new_bmp->width = width;new_bmp->height = height;
-	new_bmp->next = NULL;
-	
-	canvas->bmps_tail->next = new_bmp;
-	canvas->max_layer = (layer > canvas->max_layer)? layer: canvas->max_layer;
-	canvas->bmps_tail = new_bmp;
+	int i;
+	for(i=0;i<30;i++)
+	{
+		if(strcmp(canvas[i].id,"")==0)
+			break;
+	}
+	strcpy(canvas[i].id,id);
+	canvas[i].bmp_data = bmp;
+	canvas[i].layer = layer;
+	canvas[i].x = x;
+	canvas[i].y = y;
+	canvas[i].width = width;
+	canvas[i].height = height;
 	
 }
 
-/**
-  *　删除编号为id的图像
-  *　
-  *
-**/
-void deleteBitmapById(struct Canvas *canvas,char id[])
+
+/********( deleteBitmapById )******** *
+ * 参数：@canvas —— 画布				 		 	*
+ *			@id —— 图片的标识字符串		  *
+ * 返回值：无										  		*
+ * 功能：将指定的图片从画布中删去 *
+ ************************************ */
+void deleteBitmapById(Canvas canvas,char id[])
 {
-	struct BitmapsNode *delete_pointer,*tmp_pointer;
-	delete_pointer = canvas->bmps;
-	while(delete_pointer->next != NULL)
+	int i;
+	for(i=0;i<30;i++)
 	{
-		tmp_pointer = delete_pointer->next;
-		if( strcmp(tmp_pointer->id,id) == 0 )
-		{
-			delete_pointer->next = tmp_pointer->next;
-			if(tmp_pointer == canvas->bmps_tail)
-				canvas->bmps_tail = NULL;
-			free(tmp_pointer);
+		if(strcmp(canvas[i].id,id)==0){
+			strcpy(canvas[i].id,"");
+			canvas[i].bmp_data = NULL;
+			canvas[i].layer = 0;
+			canvas[i].x = 0;
+			canvas[i].y = 0;
+			canvas[i].width = 0;
+			canvas[i].height = 0;
+			Uart_Printf("Bitmap(%s)deleted!\n",id);
+			break;
 		}
-		break;
 	}
-	
 }
 
-/**
-  *　清除整个画布（所有层）
-  *　
-  *
-**/
-void cleanCanvas(struct Canvas *canvas)
+/********( cleanCanvas )********* *
+ * 参数：@canvas —— 画布				  *
+ * 返回值：无										  *
+ * 功能：清除所有在画布上的图  *
+ ******************************** */
+void cleanCanvas(Canvas canvas)
 {
-	struct BitmapsNode *cleaner,*clean_pointer;
-	cleaner = canvas->bmps;
-	while( cleaner->next != NULL)
+	int i;
+	for(i=0;i<30;i++)
 	{
-		clean_pointer = cleaner->next;
-		free(cleaner);
-		cleaner = clean_pointer;
+		strcpy(canvas[i].id,"");
+		canvas[i].bmp_data = NULL;
+		canvas[i].layer = 0;
+		canvas[i].x = 0;
+		canvas[i].y = 0;
+		canvas[i].width = 0;
+		canvas[i].height = 0;
 	}
-	free(canvas);
-	canvas = NULL;
 }
 
-void update(struct Canvas *canvas)
+/***********( update )*********** *
+ * 参数：@canvas —— 画布				  *
+ * 返回值：无										  *
+ * 功能：绘制所有在画布上的图  *
+ ******************************** */
+void update(Canvas canvas)
 {
+	int i;
 	struct BitmapsNode *painter;
-	int i= 0;
-	painter = canvas->bmps;
-	while(i <= canvas->max_layer)
+	for(i=0;i<30;i++)
 	{
-		while(painter->next != NULL )
-		{
-			if(painter->layer == i)
-				Paint_Bmp(painter->x,painter->y,painter->width,painter->height,painter->bmp_data);
-			painter = painter->next;
-		}
-		i++;
+		painter = &canvas[i];
+		if(strcmp(painter->id,"")!=0)
+			Paint_Bmp(painter->x,painter->y,painter->width,painter->height,painter->bmp_data);
 	}
 }

@@ -1,11 +1,11 @@
 #ifndef _LCD_H
 #define _LCD_H
 
-#include <sys/S3C2440.h>
+#include <s3c2440.h>
 #include "sys.h"
 
 
-//RGB£º5:6:5ÑÕÉ«¶¨Òåºê
+//RGB:5:6:5?????
 #define RGB(R,G,B) (  (((unsigned short)(R >> 3))<<11)\
 					| (((unsigned short)(G >> 2))<<5)\
 					| (((unsigned short)(B >> 3))<<0))
@@ -53,39 +53,14 @@
 
 #endif
 
-//---------------------------------------------
-#elif defined LCD_W43
-#define LCD_WIDTH 272
-#define LCD_HEIGHT 480
-
-//Timing parameter for 4.3' LCD
-#define LCD_VBPD 		(2)			//¥?÷±Õ¨??????µ??ÛºÁ
-#define LCD_VFPD 		(4)			//¥?÷±Õ¨??????µ?«?ºÁ
-#define LCD_VSPW 		(8)			//¥?÷±Õ¨??????µ?¬?øÌ
-
-#define LCD_HBPD 		(10)			//ÀÆ??Õ¨??????µ??ÛºÁ
-#define LCD_HFPD 		(19)			//ÀÆ??Õ¨??????µ?«?ºÁ
-#define LCD_HSPW 		(30)			//ÀÆ??Õ¨??????µ?¬?øÌ
-
-//#define LCD_VBPD   (1)		//VBPD
-//#define LCD_VFPD   (4)		//VFPD
-//#define LCD_VSPW   (1)		//VSPW
-//
-//#define LCD_HBPD   (25)		//HBPD
-//#define LCD_HFPD   (0)		//HFPD
-//#define LCD_HSPW   (4)		//HSPW
-#endif
-//=============================================
-
-
-// ¶¨ÒåÆÁÄ»³ß´ç
+// ??????
 #define SCR_XSIZE LCD_WIDTH
 #define SCR_YSIZE LCD_HEIGHT
 
-//¶Ô±äÁ¿ÖÐµÚÒ»¸öÎ»Çå0
+//?????????0
 #define CLR_BIT(iVariant,iBit) iVariant &= ~(1<<iBit)
 
-//¶Ô±äÁ¿ÖÐµÚÒ»¸öÎ»ÖÃÎ»
+//??????????
 #define SET_BIT(iVariant,iBit) iVariant |= (1<<iBit)
 
 //=================LCDCON1===================
@@ -250,12 +225,16 @@
 //1 = The interrupt service is masked.
 #define LCD_INT_FiCnt (0)
 
-// ÖÐÎÄ×ÖÄ£¼°Ó¢ÎÄ×ÖÄ£
+// ?????????
 extern unsigned char __CHS[];
 extern unsigned char __VGA[];
 extern unsigned char ZM_16x16[][32];
 
 // BMPÍ¼Æ¬
+//extern unsigned char bg[];
+//extern unsigned char main_img[];
+//extern unsigned char Loffy1[];
+//extern unsigned char Loffy2[];
 
 extern unsigned char game_scene_ui[];
 extern unsigned char game_level_bg[];		
@@ -269,15 +248,17 @@ extern unsigned char t_bmp_5[];
 extern unsigned char t_bmp_6[];		
 extern unsigned char t_bmp_7[];		
 extern unsigned char t_bmp_8[];		
+extern unsigned char xp_1[];		
+extern unsigned char xp_2[];		
 
 
 void PutPixel(uint32 x,uint32 y, uint16 c );
 void Lcd_ClearScr(uint32 c);	//LCDÇåÆÁ»òÌî³äÖ¸¶¨ÑÕÉ«
 void Lcd_Init(void);	// Lcd³õÊ¼»¯
-void Lcd_Test(void);	// LCDÏÔÊ¾²âÊÔ
-void Fjnu_Run(void);	// FJNUÍ¼Ïñ¹ö¶¯ÏÔÊ¾
-void Fan_Run(void);
-void Net_Run(void);
+//void Lcd_Test(void);	// LCDÏÔÊ¾²âÊÔ
+//void Fjnu_Run(void);	// FJNUÍ¼Ïñ¹ö¶¯ÏÔÊ¾
+//void Fan_Run(void);
+//void Net_Run(void);
 void Lcd_printf(uint32 x, uint32 y, uint16 c, uint16 bk_c, uint8 is_bk, char *fmt,...);
 void Paint_Bmp(uint16 x,uint16 y, uint16 w, uint16 h, unsigned char bmp[]);
 

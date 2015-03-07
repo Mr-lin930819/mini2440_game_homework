@@ -38,5 +38,6 @@ void PY_Test(void);
 
 //©╙й╪сно╥
 void PlayGame(int game_level);
+//void PlayGame(void);
 
 #endif

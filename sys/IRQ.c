@@ -59,6 +59,7 @@ void Timer0_Handle(void)
  * 输入参数：无
  * 输出参数：无
 *****************************************************************/
+#if 0
 void HandlerIRQ(void)
 {
 	switch(INTOFFSET)
@@ -107,7 +108,7 @@ void HandlerIRQ(void)
 	}
 	ClearPending(1<<INTOFFSET); 		//清中断挂起寄存器包括SRCPND INTPND
 }
-
+#endif
 
 /*****************************************************************
  * 函数名称：IRQ_Init

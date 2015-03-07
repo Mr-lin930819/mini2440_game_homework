@@ -161,9 +161,9 @@ void Lcd_Test()
 	delay(5000);
 	Lcd_ClearScr(RGB(0,0,0));		// ��ɫ
 	delay(5000);
-	Paint_Bmp(0, 0, 240, 320, Loffy1); 	// ͼƬ1
+//	Paint_Bmp(0, 0, 240, 320, Loffy1); 	// ͼƬ1
 	delay(5000);
-	Paint_Bmp(0, 0, 240, 320, Loffy2);	// ͼƬ2
+//	Paint_Bmp(0, 0, 240, 320, Loffy2);	// ͼƬ2
 	delay(5000);
 }
 

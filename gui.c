@@ -16,32 +16,43 @@
 #define	ICON_Y		45		// 图标显示的起始Y坐标
 #define	ICON_Width	78		// 图标的宽度
 #define	ICON_High	78		// 图标的高度
+
+
+#define LEVEL_WIDTH 100
+#define LEVEL_HEIGHT 35
+#define LEVEL_X 70
+#define LEVEL_1_Y 85
+#define LEVEL_2_Y 138
+#define LEVEL_3_Y 188
+#define LEVEL_4_Y 238
+
 unsigned char GetIcon( struct LcdDot *tmpXY) 
 {
-	if( (*tmpXY).x>=ICON_X && (*tmpXY).x<=(ICON_X+ICON_Width*1) &&	
-		(*tmpXY).y>=ICON_Y && (*tmpXY).y<=(ICON_Y+ICON_High))
+	if( (*tmpXY).x>=LEVEL_X && (*tmpXY).x<=(LEVEL_X+LEVEL_WIDTH*1) &&	
+		(*tmpXY).y>=LEVEL_1_Y && (*tmpXY).y<=(LEVEL_1_Y+LEVEL_HEIGHT))
 	{
 		return 1 ;					// 流水灯
 	}
 	
-	if( (*tmpXY).x>=(ICON_X+ICON_Width*1) && (*tmpXY).x<=(ICON_X+ICON_Width*2) &&	
-		(*tmpXY).y>=ICON_Y && (*tmpXY).y<=(ICON_Y+ICON_High))
+	if( (*tmpXY).x>=(LEVEL_X+LEVEL_WIDTH*0) && (*tmpXY).x<=(LEVEL_X+LEVEL_WIDTH*1) &&	
+		(*tmpXY).y>=LEVEL_2_Y && (*tmpXY).y<=(LEVEL_2_Y+LEVEL_HEIGHT))
 	{
 		return 2 ;					// 图片显示
 	}
 			
-	if( (*tmpXY).x>=(ICON_X+ICON_Width*2) && (*tmpXY).x<=(ICON_X+ICON_Width*3) &&	
-		(*tmpXY).y>=ICON_Y && (*tmpXY).y<=(ICON_Y+ICON_High))
+	if( (*tmpXY).x>=(LEVEL_X+LEVEL_WIDTH*0) && (*tmpXY).x<=(LEVEL_X+LEVEL_WIDTH*1) &&	
+		(*tmpXY).y>=LEVEL_3_Y && (*tmpXY).y<=(LEVEL_3_Y+LEVEL_HEIGHT))
 	{
 		return 3 ;					// 坐标校正
 	}
 			
-	if( (*tmpXY).x>=(ICON_X+ICON_Width*0) && (*tmpXY).x<=(ICON_X+ICON_Width*1) &&	
-	    (*tmpXY).y>=(ICON_Y+ICON_High) && (*tmpXY).y<=(ICON_Y+ICON_High*2))
+	if( (*tmpXY).x>=(LEVEL_X+LEVEL_WIDTH*0) && (*tmpXY).x<=(LEVEL_X+LEVEL_WIDTH*1) &&	
+	    (*tmpXY).y>=LEVEL_4_Y && (*tmpXY).y<=(LEVEL_4_Y+LEVEL_HEIGHT*1))
 	{
 		return 4 ;					// 画图
 	}	
-		
+	
+/*	
 	if( (*tmpXY).x>=(ICON_X+ICON_Width*1) && (*tmpXY).x<=(ICON_X+ICON_Width*2) &&	
 	    (*tmpXY).y>=(ICON_Y+ICON_High) && (*tmpXY).y<=(ICON_Y+ICON_High*2))
 	{
@@ -70,6 +81,7 @@ unsigned char GetIcon( struct LcdDot *tmpXY)
 	{
 		return 9 ;					// 系统说明
 	}
+	*/
 
 	return 0;
 }

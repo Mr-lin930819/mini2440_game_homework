@@ -9,6 +9,7 @@
 *****************************************************************/
 void Timer0Init(void)
 {
+	/*
 	// 定时器设置
 	TCFG0 &= 0xff00;			// 清除Timer0&1的预分频器0
 	TCFG0 |= 99;				// 设置预分频器0=15
@@ -21,7 +22,15 @@ void Timer0Init(void)
 
     TCON = TCON | 0x02;		// 手动更新，将TCNTBn的值载入TCNTn	
 	TCON = 0x09; 			// 自动加载，启动定时器0
-
 	ClearPending(BIT_TIMER0);
 	INTMSK &= ~(BIT_TIMER0);
+	*/
+	TCFG0&=~(0xff);
+	TCFG0|=99;
+   TCFG1&=~(0xf);
+		TCFG1|=0x02;
+   TCNTB0=62500;
+   TCON|=(1<<1);
+   TCON=0x09;
+	INTMSK&=~(1<<10);
 }

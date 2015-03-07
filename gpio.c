@@ -54,7 +54,7 @@ void LED_Test(void)
 	uint8 i;
 	GPB_Conf();						// GPIO初始化
 	
-	Paint_Bmp(0, 0, 240, 320, bg);	// 页面切换
+//	Paint_Bmp(0, 0, 240, 320, bg);	// 页面切换
 	Lcd_printf(30, 100, RGB(0x00,0x00,0x00),RGB(0xff,0xff,0xff),0,"正在进行流水灯显示");
 	
 	for(i=0; i<10; i++)
